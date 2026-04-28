@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/weather_provider.dart';
+import '../widgets/forecast_list.dart';
 
 class WeatherHomeScreen extends StatefulWidget {
   const WeatherHomeScreen({super.key});
@@ -84,16 +85,14 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
 
                   const SizedBox(height: 12),
 
-SizedBox(
-  width: double.infinity,
-  child: FilledButton.icon(
-    onPressed: _searchCity,
-    icon: const Icon(Icons.search),
-    label: const Text('Search Weather'),
-  ),
-),
-
-const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: _searchCity,
+                      icon: const Icon(Icons.search),
+                      label: const Text('Search Weather'),
+                    ),
+                  ),
 
                   const SizedBox(height: 24),
 
@@ -149,6 +148,12 @@ const SizedBox(height: 24),
                         ],
                       ),
                     ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  ForecastList(
+                    forecast: weatherProvider.forecast,
                   ),
 
                   if (weatherProvider.errorMessage != null) ...[
