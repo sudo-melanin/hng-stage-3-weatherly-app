@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../providers/weather_provider.dart';
 import '../widgets/forecast_list.dart';
+import '../widgets/error_view.dart';
+import '../widgets/loading_weather_card.dart';
 
 class WeatherHomeScreen extends StatefulWidget {
   const WeatherHomeScreen({super.key});
@@ -41,19 +43,16 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
         child: Consumer<WeatherProvider>(
           builder: (context, weatherProvider, child) {
             if (weatherProvider.isLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const LoadingWeatherCard();
             }
 
             if (!weatherProvider.hasWeatherData) {
-              return _EmptyWeatherState(
+              return ErrorView(
                 message: weatherProvider.errorMessage ??
-                    'No weather data available yet.',
+                    'No weather data available yet. Please try again or search for a city.',
                 onRetry: weatherProvider.loadWeatherByLocation,
               );
             }
-
             final weather = weatherProvider.currentWeather!;
 
             return RefreshIndicator(
@@ -158,9 +157,24 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
 
                   if (weatherProvider.errorMessage != null) ...[
                     const SizedBox(height: 16),
-                    Text(
-                      weatherProvider.errorMessage!,
-                      style: const TextStyle(color: Colors.orange),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.info_outline, color: Colors.orange),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              weatherProvider.errorMessage!,
+                              style: const TextStyle(color: Colors.orange),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ],
@@ -195,39 +209,6 @@ class _WeatherDetailRow extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _EmptyWeatherState extends StatelessWidget {
-  final String message;
-  final Future<void> Function() onRetry;
-
-  const _EmptyWeatherState({
-    required this.message,
-    required this.onRetry,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              message,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
       ),
     );
   }
