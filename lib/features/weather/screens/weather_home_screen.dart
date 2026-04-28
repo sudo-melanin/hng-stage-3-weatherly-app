@@ -11,6 +11,17 @@ class WeatherHomeScreen extends StatefulWidget {
 }
 
 class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
+
+  final TextEditingController _searchController = TextEditingController();
+
+  void _searchCity() {
+    final city = _searchController.text.trim();
+
+    FocusScope.of(context).unfocus();
+
+    context.read<WeatherProvider>().searchWeatherByCity(city);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +61,41 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
                 padding: const EdgeInsets.all(20),
                 children: [
                   const SizedBox(height: 12),
+
+                  TextField(
+                    controller: _searchController,
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (_) => _searchCity(),
+                    decoration: InputDecoration(
+                      hintText: 'Search city, e.g. Lagos',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.my_location),
+                        onPressed: weatherProvider.loadWeatherByLocation,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+SizedBox(
+  width: double.infinity,
+  child: FilledButton.icon(
+    onPressed: _searchCity,
+    icon: const Icon(Icons.search),
+    label: const Text('Search Weather'),
+  ),
+),
+
+const SizedBox(height: 24),
+
+                  const SizedBox(height: 24),
 
                   Text(
                     weather.cityName,
