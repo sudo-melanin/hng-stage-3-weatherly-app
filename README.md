@@ -102,6 +102,14 @@ Sensitive technical details such as API keys or raw error logs are not exposed t
 
 ---
 
+## Known Limitations
+
+- The application relies on a public weather API, which may enforce rate limits.
+- Location services may not work reliably in emulator or hosted preview environments such as Appetizer.
+- API key is stored client-side for this project; in production, a secure backend proxy would be recommended.
+
+---
+
 ## Live Preview
 
 Appetize:  
@@ -129,7 +137,9 @@ flutter run
 
 ---
 
-## How to Run
+## Build (Release APK)
+
+To generate a release APK:
 
 ```bash
 flutter build apk --release
@@ -137,3 +147,9 @@ flutter build apk --release
 
 The generated APK can be found at:
 build/app/outputs/flutter-apk/app-release.apk
+
+---
+
+## Author
+
+Developed as part of the HNG Internship Mobile Track.
