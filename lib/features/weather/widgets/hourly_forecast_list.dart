@@ -37,13 +37,13 @@ class HourlyForecastList extends StatelessWidget {
             itemBuilder: (context, index) {
               return TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: 1),
-                duration: Duration(milliseconds: 300 + (index * 80)),
+                duration: Duration(milliseconds: 600 + (index * 180)),
                 curve: Curves.easeOutCubic,
                 builder: (context, value, child) {
                   return Opacity(
                     opacity: value,
                     child: Transform.translate(
-                      offset: Offset(20 * (1 - value), 0),
+                      offset: Offset(60 * (1 - value), 0),
                       child: child,
                     ),
                   );

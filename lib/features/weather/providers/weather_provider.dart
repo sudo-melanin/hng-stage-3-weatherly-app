@@ -29,6 +29,10 @@ class WeatherProvider extends ChangeNotifier {
 
   bool get hasWeatherData => _currentWeather != null;
 
+  Future<void> loadDefaultWeather() async {
+  await searchWeatherByCity('Lagos');
+}
+
   Future<void> loadWeatherByLocation() async {
     _setLoadingState();
 
@@ -47,9 +51,13 @@ class WeatherProvider extends ChangeNotifier {
 
       await _saveFreshWeather(currentWeather, forecast);
     } catch (e) {
-      await _loadCachedWeather(
-        fallbackMessage: e.toString().replaceFirst('Exception: ', ''),
-      );
+      final fallbackMessage = e.toString().replaceFirst('Exception: ', '');
+
+      if (_cacheService.hasCachedWeather()) {
+        await _loadCachedWeather(fallbackMessage: fallbackMessage);
+      } else {
+        await searchWeatherByCity('Lagos');
+      }
     }
   }
 

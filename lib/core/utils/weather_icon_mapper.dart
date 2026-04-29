@@ -9,9 +9,8 @@ class WeatherIconMapper {
         return Icons.cloud_rounded;
 
       case 'rain':
-      case 'drizzle':
-        return Icons.water_drop_rounded;
-
+        case 'drizzle':
+          return Icons.cloudy_snowing;
       case 'thunderstorm':
         return Icons.flash_on_rounded;
 

@@ -9,6 +9,7 @@ class CurrentWeatherModel {
   final double windSpeed;
   final int pressure;
   final DateTime dateTime;
+  final String countryCode;
 
   CurrentWeatherModel({
     required this.cityName,
@@ -21,6 +22,7 @@ class CurrentWeatherModel {
     required this.windSpeed,
     required this.pressure,
     required this.dateTime,
+    required this.countryCode,
   });
 
   factory CurrentWeatherModel.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,7 @@ class CurrentWeatherModel {
       dateTime: DateTime.fromMillisecondsSinceEpoch(
         (json['dt'] as int) * 1000,
       ),
+      countryCode: json['sys']?['country'] ?? '',
     );
   }
 
@@ -71,6 +74,8 @@ class CurrentWeatherModel {
       windSpeed: (json['windSpeed'] as num).toDouble(),
       pressure: json['pressure'] ?? 0,
       dateTime: DateTime.parse(json['dateTime']),
+      countryCode: json['countryCode'] ?? '',
+      
     );
   }
 }
