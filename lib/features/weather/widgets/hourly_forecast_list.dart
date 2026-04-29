@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 
 import '../data/models/forecast_model.dart';
-import 'forecast_card.dart';
+import 'hourly_forecast_card.dart';
 
-class ForecastList extends StatelessWidget {
+class HourlyForecastList extends StatelessWidget {
   final List<ForecastModel> forecast;
 
-  const ForecastList({
+  const HourlyForecastList({
     super.key,
     required this.forecast,
   });
 
   @override
   Widget build(BuildContext context) {
-    final dailyForecast = _getDailyForecast(forecast);
+    final hourlyForecast = forecast.take(6).toList();
 
-    if (dailyForecast.isEmpty) {
+    if (hourlyForecast.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -23,50 +23,39 @@ class ForecastList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '5-Day Forecast',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          'Hourly Forecast',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 180,
+          height: 118,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: dailyForecast.length,
+            itemCount: hourlyForecast.length,
             itemBuilder: (context, index) {
               return TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: 1),
-                duration: Duration(milliseconds: 350 + (index * 120)),
+                duration: Duration(milliseconds: 300 + (index * 80)),
                 curve: Curves.easeOutCubic,
                 builder: (context, value, child) {
                   return Opacity(
                     opacity: value,
                     child: Transform.translate(
-                      offset: Offset(30 * (1 - value), 0),
+                      offset: Offset(20 * (1 - value), 0),
                       child: child,
                     ),
                   );
                 },
-                child: ForecastCard(forecast: dailyForecast[index]),
+                child: HourlyForecastCard(
+                  forecast: hourlyForecast[index],
+                ),
               );
             },
           ),
         ),
       ],
     );
-  }
-
-  List<ForecastModel> _getDailyForecast(List<ForecastModel> forecast) {
-    final Map<String, ForecastModel> groupedForecast = {};
-
-    for (final item in forecast) {
-      final dateKey =
-          '${item.dateTime.year}-${item.dateTime.month}-${item.dateTime.day}';
-
-      groupedForecast.putIfAbsent(dateKey, () => item);
-    }
-
-    return groupedForecast.values.take(5).toList();
   }
 }

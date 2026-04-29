@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/utils/weather_icon_mapper.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/forecast_list.dart';
 import '../widgets/error_view.dart';
 import '../widgets/loading_weather_card.dart';
+import '../widgets/hourly_forecast_list.dart';
 
 class WeatherHomeScreen extends StatefulWidget {
   const WeatherHomeScreen({super.key});
@@ -14,14 +16,12 @@ class WeatherHomeScreen extends StatefulWidget {
 }
 
 class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
-
   final TextEditingController _searchController = TextEditingController();
 
   void _searchCity() {
     final city = _searchController.text.trim();
 
     FocusScope.of(context).unfocus();
-
     context.read<WeatherProvider>().searchWeatherByCity(city);
   }
 
@@ -29,11 +29,17 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
   void initState() {
     super.initState();
 
-    // We wait until the first frame is built before calling Provider.
-    // This avoids using context too early during screen initialization.
+    // Wait until the first frame is ready before calling Provider.
+    // This keeps the startup fetch away from the initial build process.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<WeatherProvider>().loadWeatherByLocation();
     });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -53,6 +59,7 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
                 onRetry: weatherProvider.loadWeatherByLocation,
               );
             }
+
             final weather = weatherProvider.currentWeather!;
 
             return RefreshIndicator(
@@ -68,15 +75,19 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
                     onSubmitted: (_) => _searchCity(),
                     decoration: InputDecoration(
                       hintText: 'Search city, e.g. Lagos',
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: const Icon(Icons.search_rounded),
                       suffixIcon: IconButton(
-                        icon: const Icon(Icons.my_location),
+                        icon: const Icon(Icons.my_location_rounded),
                         onPressed: weatherProvider.loadWeatherByLocation,
                       ),
                       filled: true,
                       fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 18,
+                      ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(28),
                         borderSide: BorderSide.none,
                       ),
                     ),
@@ -88,44 +99,113 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
                     width: double.infinity,
                     child: FilledButton.icon(
                       onPressed: _searchCity,
-                      icon: const Icon(Icons.search),
+                      icon: const Icon(Icons.search_rounded),
                       label: const Text('Search Weather'),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(56),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                      ),
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 28),
 
-                  Text(
-                    weather.cityName,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  Text(
-                    weather.description,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  Center(
-                    child: Text(
-                      '${weather.temperature.round()}°C',
-                      style:
-                          Theme.of(context).textTheme.displayLarge?.copyWith(
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: Column(
+                      key: ValueKey(
+                        '${weather.cityName}-${weather.description}',
+                      ),
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          weather.cityName,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          weather.description,
+                          textAlign: TextAlign.center,
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                      ],
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
+                  Center(
+                    child: Icon(
+                      WeatherIconMapper.getIcon(weather.condition),
+                      size: 72,
+                      color: Colors.blueGrey.shade700,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Center(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 350),
+                      transitionBuilder: (child, animation) {
+                        return ScaleTransition(
+                          scale: animation,
+                          child: FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: Text(
+                        '${weather.temperature.round()}°C',
+                        key: ValueKey(weather.temperature.round()),
+                        style:
+                            Theme.of(context).textTheme.displayLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: 1),
+                    duration: const Duration(milliseconds: 450),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, value, child) {
+                      return Opacity(
+                        opacity: value,
+                        child: Transform.translate(
+                          offset: Offset(0, 24 * (1 - value)),
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.07),
+                            blurRadius: 18,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
                       child: Column(
                         children: [
                           _WeatherDetailRow(
@@ -147,6 +227,12 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
                         ],
                       ),
                     ),
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  HourlyForecastList(
+                    forecast: weatherProvider.forecast,
                   ),
 
                   const SizedBox(height: 24),

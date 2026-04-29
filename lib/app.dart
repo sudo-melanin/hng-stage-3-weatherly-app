@@ -13,7 +13,7 @@ class WeatherApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: Colors.blue,
-        scaffoldBackgroundColor: const Color(0xFFF4F7FB),
+        scaffoldBackgroundColor: const Color(0xFFF2F6FC),
       ),
       home: const WeatherHomeScreen(),
     );
