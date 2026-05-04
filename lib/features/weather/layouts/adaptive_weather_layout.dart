@@ -7,6 +7,7 @@ import 'wide_weather_layout.dart';
 class AdaptiveWeatherLayout extends StatelessWidget {
   final WeatherProvider weatherProvider;
   final TextEditingController searchController;
+  final FocusNode searchFocusNode;
   final bool isSearching;
   final VoidCallback onToggleSearch;
   final VoidCallback onSearchCity;
@@ -15,6 +16,7 @@ class AdaptiveWeatherLayout extends StatelessWidget {
     super.key,
     required this.weatherProvider,
     required this.searchController,
+    required this.searchFocusNode,
     required this.isSearching,
     required this.onToggleSearch,
     required this.onSearchCity,
@@ -30,6 +32,7 @@ class AdaptiveWeatherLayout extends StatelessWidget {
           return WideWeatherLayout(
             weatherProvider: weatherProvider,
             searchController: searchController,
+            searchFocusNode: searchFocusNode,
             isSearching: isSearching,
             onToggleSearch: onToggleSearch,
             onSearchCity: onSearchCity,
@@ -39,6 +42,7 @@ class AdaptiveWeatherLayout extends StatelessWidget {
         return MobileWeatherLayout(
           weatherProvider: weatherProvider,
           searchController: searchController,
+          searchFocusNode: searchFocusNode,
           isSearching: isSearching,
           onToggleSearch: onToggleSearch,
           onSearchCity: onSearchCity,

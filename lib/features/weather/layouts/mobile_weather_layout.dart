@@ -13,11 +13,13 @@ class MobileWeatherLayout extends StatelessWidget {
   final bool isSearching;
   final VoidCallback onToggleSearch;
   final VoidCallback onSearchCity;
+  final FocusNode searchFocusNode;
 
   const MobileWeatherLayout({
     super.key,
     required this.weatherProvider,
     required this.searchController,
+    required this.searchFocusNode,
     required this.isSearching,
     required this.onToggleSearch,
     required this.onSearchCity,
@@ -43,6 +45,7 @@ class MobileWeatherLayout extends StatelessWidget {
             isSearching: isSearching,
             controller: searchController,
             onSearchCity: onSearchCity,
+            searchFocusNode: searchFocusNode,
           ),
           const SizedBox(height: 20),
           _HeroWeatherCard(
@@ -69,6 +72,7 @@ class _TopBar extends StatelessWidget {
   final bool isSearching;
   final VoidCallback onToggleSearch;
   final Future<void> Function() onUseLocation;
+  
 
   const _TopBar({
     required this.isSearching,
@@ -89,12 +93,12 @@ class _TopBar extends StatelessWidget {
           ),
         ),
         IconButton(
-          tooltip: 'Use current location',
+          tooltip: 'Use current location (Alt + L)',
           onPressed: onUseLocation,
           icon: const Icon(Icons.my_location_rounded),
         ),
         IconButton(
-          tooltip: 'Search city',
+          tooltip: 'Search city (Alt + S)',
           onPressed: onToggleSearch,
           icon: Icon(
             isSearching ? Icons.close_rounded : Icons.search_rounded,
@@ -109,11 +113,13 @@ class _SearchField extends StatelessWidget {
   final bool isSearching;
   final TextEditingController controller;
   final VoidCallback onSearchCity;
+  final FocusNode searchFocusNode;
 
   const _SearchField({
     required this.isSearching,
     required this.controller,
     required this.onSearchCity,
+    required this.searchFocusNode,
   });
 
   @override
@@ -125,6 +131,7 @@ class _SearchField extends StatelessWidget {
               key: const ValueKey('search-field'),
               padding: const EdgeInsets.only(top: 12),
               child: TextField(
+                focusNode: searchFocusNode,
                 controller: controller,
                 autofocus: true,
                 textInputAction: TextInputAction.search,

@@ -13,6 +13,7 @@ class WideWeatherLayout extends StatelessWidget {
   final bool isSearching;
   final VoidCallback onToggleSearch;
   final VoidCallback onSearchCity;
+  final FocusNode searchFocusNode;
 
   const WideWeatherLayout({
     super.key,
@@ -21,6 +22,7 @@ class WideWeatherLayout extends StatelessWidget {
     required this.isSearching,
     required this.onToggleSearch,
     required this.onSearchCity,
+    required this.searchFocusNode,
   });
 
   @override
@@ -38,6 +40,14 @@ class WideWeatherLayout extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 1200),
             child: Column(
               children: [
+                _DesktopMenuBar(
+                  onSearchCity: onToggleSearch,
+                  onRefresh: weatherProvider.loadWeatherByLocation,
+                  onUseLocation: weatherProvider.loadWeatherByLocation,
+                  onLoadDefault: weatherProvider.loadDefaultCity,
+                ),
+
+                const SizedBox(height: 16),
                 _DesktopTopBar(
                   isSearching: isSearching,
                   onToggleSearch: onToggleSearch,
@@ -47,6 +57,7 @@ class WideWeatherLayout extends StatelessWidget {
                   isSearching: isSearching,
                   controller: searchController,
                   onSearchCity: onSearchCity,
+                  searchFocusNode: searchFocusNode,
                 ),
                 const SizedBox(height: 24),
                 Row(
@@ -136,7 +147,7 @@ class _DesktopTopBar extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         _HoverActionButton(
-          tooltip: 'Search city',
+          tooltip: 'Search city (Alt + S)',
           icon: isSearching ? Icons.close_rounded : Icons.search_rounded,
           label: isSearching ? 'Close' : 'Search',
           onPressed: onToggleSearch,
@@ -150,11 +161,13 @@ class _DesktopSearchField extends StatelessWidget {
   final bool isSearching;
   final TextEditingController controller;
   final VoidCallback onSearchCity;
+  final FocusNode searchFocusNode;
 
   const _DesktopSearchField({
     required this.isSearching,
     required this.controller,
     required this.onSearchCity,
+    required this.searchFocusNode,
   });
 
   @override
@@ -166,6 +179,7 @@ class _DesktopSearchField extends StatelessWidget {
               key: const ValueKey('desktop-search-field'),
               padding: const EdgeInsets.only(top: 18),
               child: TextField(
+                focusNode: searchFocusNode,
                 controller: controller,
                 autofocus: true,
                 textInputAction: TextInputAction.search,
@@ -474,4 +488,150 @@ class _HoverActionButtonState extends State<_HoverActionButton> {
       ),
     );
   }
+}
+
+class _DesktopMenuBar extends StatelessWidget {
+  final VoidCallback onSearchCity;
+  final Future<void> Function() onRefresh;
+  final Future<void> Function() onUseLocation;
+  final Future<void> Function() onLoadDefault;
+
+  const _DesktopMenuBar({
+    required this.onSearchCity,
+    required this.onRefresh,
+    required this.onUseLocation,
+    required this.onLoadDefault,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 36,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+         color: Colors.white.withValues(alpha: 0.65),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.black.withValues(alpha: 0.00),
+        ),
+      ),
+      child: Row(
+        children: [
+          _MenuGroup(
+            label: 'File',
+            items: [
+              _MenuAction(
+                label: 'Search City',
+                shortcut: 'Alt + S',
+                onTap: onSearchCity,
+              ),
+              _MenuAction(
+                label: 'Load Default',
+                shortcut: 'Alt + D',
+                onTap: onLoadDefault,
+              ),
+            ],
+          ),
+          _MenuGroup(
+            label: 'View',
+            items: [
+              _MenuAction(
+                label: 'Refresh Weather',
+                shortcut: 'Alt + R',
+                onTap: onRefresh,
+              ),
+              _MenuAction(
+                label: 'Use Current Location',
+                shortcut: 'Alt + L',
+                onTap: onUseLocation,
+              ),
+            ],
+          ),
+          _MenuGroup(
+            label: 'Help',
+            items: [
+              _MenuAction(
+                label: 'About Weatherly',
+                onTap: () {
+                  showAboutDialog(
+                    context: context,
+                    applicationName: 'Weatherly',
+                    applicationVersion: 'Stage 4 Cross-Platform',
+                    applicationLegalese:
+                        'Built as part of the HNG Internship Mobile Track.',
+                    children: const [
+                      SizedBox(height: 12),
+                      Text(
+                        'Weatherly is a cross-platform Flutter weather app with mobile, web, and desktop support.',
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MenuGroup extends StatelessWidget {
+  final String label;
+  final List<_MenuAction> items;
+
+  const _MenuGroup({
+    required this.label,
+    required this.items,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<_MenuAction>(
+      tooltip: label,
+      offset: const Offset(0, 36),
+      itemBuilder: (context) {
+        return items.map((item) {
+          return PopupMenuItem<_MenuAction>(
+            value: item,
+            child: Row(
+              children: [
+                Expanded(child: Text(item.label)),
+                if (item.shortcut != null) ...[
+                  const SizedBox(width: 24),
+                  Text(
+                    item.shortcut!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.black54,
+                        ),
+                  ),
+                ],
+              ],
+            ),
+          );
+        }).toList();
+      },
+      onSelected: (item) => item.onTap(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        child: Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuAction {
+  final String label;
+  final String? shortcut;
+  final VoidCallback onTap;
+
+  const _MenuAction({
+    required this.label,
+    required this.onTap,
+    this.shortcut,
+  });
 }

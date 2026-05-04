@@ -133,6 +133,11 @@ class WeatherProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> loadDefaultCity() async {
+  // For now, fallback
+    await searchWeatherByCity('Lagos');
+  }
+
   void _setLoadingState() {
     _isLoading = true;
     _errorMessage = null;
