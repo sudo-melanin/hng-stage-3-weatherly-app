@@ -9,7 +9,7 @@ import 'features/weather/providers/weather_provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: ".env", isOptional: true);
 
   await Hive.initFlutter();
   await Hive.openBox('weather_cache');

@@ -1,155 +1,200 @@
-# Weatherly – Smart Weather Forecast App
+# Weatherly – Cross-Platform Weather App
 
 ## Overview
 
-Weatherly is a Flutter-based weather application that provides real-time weather updates, hourly forecasts, and a multi-day outlook. The app was designed with a focus on clean architecture, responsive UI, and practical handling of real-world scenarios such as network failures and invalid user input.
+Weatherly is a cross-platform weather application built with Flutter, designed to run seamlessly across mobile, web, and desktop from a single codebase.
 
-This project was built as part of the HNG Internship (Stage 3 – Mobile Track), with an emphasis on API integration, state management, and building a smooth and reliable user experience.
+This project was developed as part of the HNG Internship (Stage 4 – Mobile Track), with a focus on platform adaptability, user interaction patterns, and maintaining a consistent experience across devices.
+
+---
+
+## Platforms Supported
+
+- Android (Mobile)
+- Web (Chrome, Edge, Firefox)
+- Desktop (Windows)
+
+The application dynamically adapts its layout and interaction model based on screen size rather than platform type, ensuring consistency across devices.
 
 ---
 
 ## Features
 
-- Location-based weather detection using device services  
-- City search functionality  
-- Real-time weather information including:
-  - Temperature  
-  - Weather condition  
-  - Humidity  
-  - Wind speed  
-  - Atmospheric pressure  
-- Hourly forecast (short-term intervals)  
-- 5-day weather forecast  
-- Offline caching of the last successful weather data  
-- Error handling for:
-  - Network connectivity issues  
-  - Invalid city input  
-  - Location permission handling  
-- Dynamic UI theming based on weather conditions  
-- Smooth animations for improved user experience  
+### Core Functionality
+
+- Real-time weather data using OpenWeatherMap API
+- City-based weather search
+- Location-based weather detection
+- Hourly forecast
+- 5-day forecast
+- Offline caching of last successful result using Hive
 
 ---
 
-## API Integration
+### Cross-Platform Adaptation
 
-Weather data is fetched using the OpenWeatherMap API.
+The application implements responsive UI design:
 
-- OpenWeatherMap API  
-  https://openweathermap.org/api  
+- Mobile: Single-column layout optimized for touch interaction
+- Desktop/Web: Two-column layout with expanded content and better information hierarchy
+- Layout switching is based on screen width, not platform
 
 ---
 
-## Architecture and Approach
+### Desktop Enhancements
 
-The application follows a modular and scalable structure to keep the codebase maintainable and easy to extend.
+To improve desktop usability, the following features were implemented:
 
-- **State Management:** Provider  
-- **Data Flow:**  
-  UI → Provider → Service Layer → API → Model → UI  
-- **Local Storage:** Hive (used for lightweight offline caching)  
+- Resizable window support with adaptive content layout
+- Desktop-style menu bar:
+  - File → Search City, Load Default, Close Search
+  - View → Refresh Weather, Use Location
+  - Help → About dialog
+- Right-click context menu for quick actions
+- Mouse hover states for better interactivity
+- Keyboard interaction support (Alt-based shortcuts for key actions)
+
+---
+
+### UI/UX Features
+
+- Dynamic theming based on weather conditions
+- Gradient backgrounds reflecting weather states
+- Smooth animations:
+  - Hero card entrance animation
+  - Forecast transitions
+  - Skeleton shimmer loading state
+- Clean and modern interface designed for both mobile and desktop use
+
+---
+
+## Architecture
+
+The application follows a modular and scalable architecture:
+
+- State Management: Provider
+- Data Flow:
+  UI → Provider → Service Layer → API → Model → UI
+- Local Storage: Hive (for lightweight offline caching)
+
+---
 
 ### Project Structure
 
-- `features/` – Feature-based modules (weather logic, providers, UI)  
-- `core/` – Shared utilities, constants, and helpers  
-- `data/` – Models and API service handling  
-- `widgets/` – Reusable UI components  
-
-This structure keeps responsibilities well separated and makes the app easier to maintain.
+| Directory | Purpose |
+|---|---|
+| `lib/core/` | Shared constants, helpers, utilities, and reusable services |
+| `lib/features/weather/data/` | Weather models, API services, and caching logic |
+| `lib/features/weather/providers/` | Provider-based state management |
+| `lib/features/weather/layouts/` | Adaptive layouts for mobile and wide screens |
+| `lib/features/weather/screens/` | Main screen and platform coordination |
+| `lib/features/weather/widgets/` | Reusable weather UI components |
+| `assets/screenshots/` | Screenshots used in documentation |
 
 ---
 
 ## Animations
 
-The application includes subtle animations to improve the overall experience:
+The application includes subtle animations to enhance user experience:
 
-- Animated hero section (fade and slide transitions)  
-- Forecast list item entrance animations  
-- Temperature value transition animation  
-- Skeleton loading shimmer effect  
+- Animated hero section (fade and slide transitions)
+- Forecast list entrance animations
+- Temperature value transition animation
+- Skeleton loading shimmer effect
 
 ---
 
 ## Error Handling
 
-The app is designed to provide clear and user-friendly feedback in different scenarios:
+The application handles real-world scenarios gracefully:
 
-- Invalid city searches return a helpful message  
-- Network failures display a generic connection error  
-- Cached weather data is used as a fallback when available  
-- Retry mechanisms are available for failed operations  
+- Invalid city input
+- Network connectivity failures
+- Location permission handling
+- Offline fallback using cached data
 
-Sensitive technical details such as API keys or raw error logs are not exposed to the user.
+Sensitive information such as API keys is not exposed to users.
+
+---
+
+## API Integration
+
+- OpenWeatherMap API  
+https://openweathermap.org/api  
 
 ---
 
 ## Screenshots
 
-- Home screen (default weather view)  
-![Home Screen](assets/screenshots/home_screen.jpeg)
+### Mobile View
+![Mobile](assets/screenshots/home_screen.jpeg)
 
-- Hourly forecast section  
-![Hourly Forecast](assets/screenshots/hourly%20forecast.jpg)
+### Desktop View
+![Desktop](assets/screenshots/desktop_view.jpg)
 
-- 5-day forecast section  
-![5 Day Forecast](assets/screenshots/five_day_forecast.jpg)
+### Forecast Section
+![Forecast](assets/screenshots/five_day_forecast.jpg)
 
-- Error state (invalid city / no network)  
-![Error State](assets/screenshots/invalid%20search.jpeg)
-
-- Loading state (skeleton UI)  
-![Loading State](assets/screenshots/shimmer%20animation.jpeg)
-
----
-
-## Known Limitations
-
-- The application relies on a public weather API, which may enforce rate limits.
-- Location services may not work reliably in emulator or hosted preview environments such as Appetizer.
-- API key is stored client-side for this project; in production, a secure backend proxy would be recommended.
+### Error State
+![Error](assets/screenshots/invalid%20search.jpeg)
 
 ---
 
 ## Live Preview
 
-Appetize:  
-https://appetize.io/app/b_ghkel4rf35kmlx4se277xghl7m
+- Appetize (Mobile Simulation):  
+https://appetize.io/app/b_ghkel4rf35kmlx4se277xghl7m  
+
+- Web Version:  
+https://weatherly-cross-platform.netlify.app/
 
 ---
 
-## Repository
+## Desktop Build
 
-GitHub:  
-https://github.com/sudo-melanin/hng-stage-3-weatherly-app
+Download Windows executable (.zip):  
+https://drive.google.com/file/d/112VJAvtRmik9sh9g2owxVB29Tib6XFN6/view?usp=sharing
+
+---
+
+## Demo Video
+
+https://drive.google.com/file/d/1jE7Wx2uE6RctYH9uHZh40f7oX8HddMeb/view?usp=sharing
+
+---
+
+## Known Limitations
+
+- Some keyboard shortcuts may be restricted on web due to browser-level conflicts
+- Location services may behave differently across platforms
+- API rate limits depend on OpenWeatherMap usage policy
+
+---
+
+## Challenges Encountered
+
+- The web deployment initially failed because the app depended on a `.env` file that was not available as a static asset on Netlify. This was resolved by making dotenv optional and injecting the API key during build using `--dart-define`.
+- Adapting the mobile layout for desktop and web required restructuring the UI into adaptive layouts based on screen width.
+- Desktop input support required combining multiple patterns, including menu actions, right-click context menus, hover states, and keyboard shortcuts.
 
 ---
 
 ## How to Run
 
-1. Clone the repository  
-2. Run `flutter pub get`  
-3. Add your OpenWeather API key in a `.env` file  
-4. Run the app:
-
 ```bash
+flutter pub get
 flutter run
 ```
 
----
-
-## Build (Release APK)
-
-To generate a release APK:
+### Build for web
 
 ```bash
-flutter build apk --release
+flutter build web
 ```
 
-The generated APK can be found at:
-build/app/outputs/flutter-apk/app-release.apk
+### Build for windows
 
----
+```bash
+flutter build windows
+```
 
-## Author
-
-Developed as part of the HNG Internship Mobile Track.

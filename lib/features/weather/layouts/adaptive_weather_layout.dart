@@ -11,6 +11,7 @@ class AdaptiveWeatherLayout extends StatelessWidget {
   final bool isSearching;
   final VoidCallback onToggleSearch;
   final VoidCallback onSearchCity;
+  final FocusNode desktopShortcutFocusNode;
 
   const AdaptiveWeatherLayout({
     super.key,
@@ -20,6 +21,7 @@ class AdaptiveWeatherLayout extends StatelessWidget {
     required this.isSearching,
     required this.onToggleSearch,
     required this.onSearchCity,
+    required this.desktopShortcutFocusNode,
   });
 
   @override
@@ -36,6 +38,7 @@ class AdaptiveWeatherLayout extends StatelessWidget {
             isSearching: isSearching,
             onToggleSearch: onToggleSearch,
             onSearchCity: onSearchCity,
+            desktopShortcutFocusNode: desktopShortcutFocusNode,
           );
         }
 

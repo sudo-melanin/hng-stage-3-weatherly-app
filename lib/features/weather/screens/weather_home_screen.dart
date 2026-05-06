@@ -19,6 +19,7 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
   bool _isSearching = false;
   final FocusNode _searchFocusNode = FocusNode();
   final FocusNode _rootFocusNode = FocusNode();
+  final FocusNode _desktopShortcutFocusNode = FocusNode();
 
   void _searchCity() {
     final city = _searchController.text.trim();
@@ -34,6 +35,11 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
         _isSearching = false;
       });
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _desktopShortcutFocusNode.requestFocus();
+    });
   }
 
   void _showContextMenu(Offset position) async {
@@ -104,6 +110,7 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
     _searchController.dispose();
     _searchFocusNode.dispose();
     _rootFocusNode.dispose();
+    _desktopShortcutFocusNode.dispose();
     super.dispose();
   }
 
@@ -198,6 +205,7 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
                       searchController: _searchController,
                       isSearching: _isSearching,
                       searchFocusNode: _searchFocusNode,
+                      desktopShortcutFocusNode: _desktopShortcutFocusNode,
                       onToggleSearch: () {
                         setState(() {
                           _isSearching = !_isSearching;

@@ -6,6 +6,7 @@ import '../data/models/current_weather_model.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/forecast_list.dart';
 import '../widgets/hourly_forecast_list.dart';
+import 'package:flutter/services.dart';
 
 class WideWeatherLayout extends StatelessWidget {
   final WeatherProvider weatherProvider;
@@ -14,6 +15,7 @@ class WideWeatherLayout extends StatelessWidget {
   final VoidCallback onToggleSearch;
   final VoidCallback onSearchCity;
   final FocusNode searchFocusNode;
+  final FocusNode desktopShortcutFocusNode;
 
   const WideWeatherLayout({
     super.key,
@@ -23,6 +25,7 @@ class WideWeatherLayout extends StatelessWidget {
     required this.onToggleSearch,
     required this.onSearchCity,
     required this.searchFocusNode,
+    required this.desktopShortcutFocusNode,
   });
 
   @override
@@ -30,85 +33,128 @@ class WideWeatherLayout extends StatelessWidget {
     final weather = weatherProvider.currentWeather!;
     final gradientColors = WeatherThemeMapper.getGradient(weather.condition);
 
-    return RefreshIndicator(
-      onRefresh: weatherProvider.loadWeatherByLocation,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(28),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              children: [
-                _DesktopMenuBar(
-                  onSearchCity: onToggleSearch,
-                  onRefresh: weatherProvider.loadWeatherByLocation,
-                  onUseLocation: weatherProvider.loadWeatherByLocation,
-                  onLoadDefault: weatherProvider.loadDefaultCity,
-                ),
+    return KeyboardListener(
+      focusNode: desktopShortcutFocusNode,
+      autofocus: true,
+      onKeyEvent: (KeyEvent event) {
+        if (event is KeyDownEvent) {
+          final isAltPressed = HardwareKeyboard.instance.isAltPressed;
+          final key = event.logicalKey;
 
-                const SizedBox(height: 16),
-                _DesktopTopBar(
-                  isSearching: isSearching,
-                  onToggleSearch: onToggleSearch,
-                  onUseLocation: weatherProvider.loadWeatherByLocation,
-                ),
-                _DesktopSearchField(
-                  isSearching: isSearching,
-                  controller: searchController,
-                  onSearchCity: onSearchCity,
-                  searchFocusNode: searchFocusNode,
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 6,
-                      child: Column(
-                        children: [
-                          _WideHeroWeatherCard(
-                            weather: weather,
-                            gradientColors: gradientColors,
-                          ),
-                          const SizedBox(height: 24),
-                          _WideWeatherDetailsCard(weather: weather),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 28),
-                    Expanded(
-                      flex: 4,
-                      child: Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(32),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
-                              blurRadius: 22,
-                              offset: const Offset(0, 12),
-                            ),
-                          ],
-                        ),
+          if (isAltPressed && key == LogicalKeyboardKey.keyR) {
+            weatherProvider.loadWeatherByLocation();
+
+            searchFocusNode.requestFocus();
+          }
+
+          if (isAltPressed && key == LogicalKeyboardKey.keyL) {
+            weatherProvider.loadWeatherByLocation();
+
+            searchFocusNode.requestFocus();
+          }
+
+          if (isAltPressed && key == LogicalKeyboardKey.keyD) {
+            weatherProvider.loadDefaultCity();
+            searchFocusNode.requestFocus();
+          }
+
+          if (key == LogicalKeyboardKey.escape ||
+          (isAltPressed && key == LogicalKeyboardKey.keyC)) {
+
+            if (isSearching) {
+              onToggleSearch(); // closes search
+              searchController.clear();
+            }
+
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              desktopShortcutFocusNode.requestFocus();
+            });
+          }
+        }
+      },
+      child: RefreshIndicator(
+        onRefresh: weatherProvider.loadWeatherByLocation,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(28),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: Column(
+                children: [
+                  _DesktopMenuBar(
+                    isSearching: isSearching,
+                    desktopShortcutFocusNode: desktopShortcutFocusNode,
+                    searchController: searchController,
+                    onSearchCity: onToggleSearch,
+                    onRefresh: weatherProvider.loadWeatherByLocation,
+                    onUseLocation: weatherProvider.loadWeatherByLocation,
+                    onLoadDefault: weatherProvider.loadDefaultCity,
+                  ),
+      
+                  const SizedBox(height: 16),
+                  _DesktopTopBar(
+                    isSearching: isSearching,
+                    onToggleSearch: onToggleSearch,
+                    onUseLocation: weatherProvider.loadWeatherByLocation,
+                  ),
+                  _DesktopSearchField(
+                    isSearching: isSearching,
+                    controller: searchController,
+                    onSearchCity: onSearchCity,
+                    searchFocusNode: searchFocusNode,
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 6,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            HourlyForecastList(
-                              forecast: weatherProvider.forecast,
+                            _WideHeroWeatherCard(
+                              weather: weather,
+                              gradientColors: gradientColors,
                             ),
-                            const SizedBox(height: 28),
-                            ForecastList(
-                              forecast: weatherProvider.forecast,
-                            ),
+                            const SizedBox(height: 24),
+                            _WideWeatherDetailsCard(weather: weather),
                           ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 28),
+                      Expanded(
+                        flex: 4,
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(32),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.06),
+                                blurRadius: 22,
+                                offset: const Offset(0, 12),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              HourlyForecastList(
+                                forecast: weatherProvider.forecast,
+                              ),
+                              const SizedBox(height: 28),
+                              ForecastList(
+                                forecast: weatherProvider.forecast,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -495,12 +541,18 @@ class _DesktopMenuBar extends StatelessWidget {
   final Future<void> Function() onRefresh;
   final Future<void> Function() onUseLocation;
   final Future<void> Function() onLoadDefault;
+  final bool isSearching;
+  final TextEditingController searchController;
+  final FocusNode desktopShortcutFocusNode;
 
   const _DesktopMenuBar({
     required this.onSearchCity,
     required this.onRefresh,
     required this.onUseLocation,
     required this.onLoadDefault,
+    required this.isSearching,
+    required this.searchController,
+    required this.desktopShortcutFocusNode,
   });
 
   @override
@@ -523,8 +575,21 @@ class _DesktopMenuBar extends StatelessWidget {
             items: [
               _MenuAction(
                 label: 'Search City',
-                shortcut: 'Alt + S',
                 onTap: onSearchCity,
+              ),
+              _MenuAction(
+                label: 'Close Search',
+                shortcut: 'Esc / Alt + C',
+                onTap: () {
+                  if (isSearching) {
+                    onSearchCity();
+                    searchController.clear();
+                  }
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    desktopShortcutFocusNode.requestFocus();
+                  });
+                },
               ),
               _MenuAction(
                 label: 'Load Default',
