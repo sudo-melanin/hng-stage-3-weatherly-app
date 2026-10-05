@@ -18,8 +18,6 @@ The application dynamically adapts its layout and interaction model based on scr
 
 ---
 
-## Features
-
 ### Core Functionality
 
 - Real-time weather data using OpenWeatherMap API
